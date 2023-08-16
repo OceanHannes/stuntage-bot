@@ -1,0 +1,24 @@
+{
+  "name": "stuntage-bot",
+  "version": "1.0.0",
+  "maintainers": [
+    {
+      "name": "OceanHannes",
+      "discord": "oceanhannes"
+    }
+  ],
+  "scripts": {
+    "dev": "set NODE_ENV=development&& node src/main/main.ts",
+    "prod": "set NODE_ENV=production&& node src/main/main.ts"
+  },
+  "private": true,
+  "dependencies": {
+    "discord.js": "^12.5.3",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.5.0"
+  }
+}
