@@ -7,5 +7,7 @@ dotenv.config({
 
 module.exports = {
     NODE_ENV: process.env.NODE_ENV || 'development',
-    BOT_TOKEN: process.env.BOT_TOKEN
+    BOT_TOKEN: process.env.BOT_TOKEN,
+    NADEO_EMAIL: process.env.NADEO_EMAIL,
+    NADEO_PW: process.env.NADEO_PW,
 }
