@@ -19,8 +19,16 @@ async function login(email, password) {
     await loginTokenLevelOne();
     await loginTokenLevelTwo();
     console.log("Fully authorized to nadeo services!");
-    // TODO: tokens should be refreshed every 12h
+    setTimeout(rerfeshTokens, 12*60*60*1000); // 12h
 }
+
+async function rerfeshTokens() {
+    await refreshTokenLevelOne();
+    await refreshTokenLevelTwo();
+    console.log("Fully re-authorized to nadeo services!");
+    setTimeout(rerfeshTokens, 12*60*60*1000); // 12h
+}
+
 
 async function loginTokenLevelZero(email, password) {
     const appendedString = `${email}:${password}`;
@@ -52,6 +60,26 @@ async function loginTokenLevelTwo() {
         "Content-Type": "application/json",
         }, {
         "audience": "NadeoLiveServices",
+    });
+    const responseData = await response.json();
+    levelTwoToken = responseData.accessToken;
+    levelTwoRefreshToken = responseData.refreshToken;
+}
+
+async function refreshTokenLevelOne() {
+    const response = await backendService.post(`${BASE_PATH_PROD_TRACKMANIA}/v2/authentication/token/refresh`, {
+        "Authorization": `nadeo_v1 t=${levelOneRefreshToken}`,
+        "Content-Type": "application/json",
+    });
+    const responseData = await response.json();
+    levelOneToken = responseData.accessToken;
+    levelOneRefreshToken = responseData.refreshToken;
+}
+
+async function refreshTokenLevelTwo() {
+    const response = await backendService.post(`${BASE_PATH_PROD_TRACKMANIA}/v2/authentication/token/refresh`, {
+        "Authorization": `nadeo_v1 t=${levelTwoRefreshToken}`,
+        "Content-Type": "application/json",
     });
     const responseData = await response.json();
     levelTwoToken = responseData.accessToken;
