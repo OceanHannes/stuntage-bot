@@ -59,17 +59,17 @@ async function loginTokenLevelTwo() {
 }
 
 async function getNewRecords() {
-    //const mapId = "acB1NAOUIlOXxfyBplFdyhjgSY2"; // id of "STUNT clout"
-    let newRecords = [];
-
     const mapIds = mapRepository.getMapIds();
+
+    let newRecords = [];
     for (const mapId of mapIds) {
         const newOnMap = await getNewMapRecords(mapId);
         newOnMap.forEach(n => {
             newRecords.push(n);
         });
     }
-    console.log(newRecords);
+
+    return newRecords;
 }
 
 async function getNewMapRecords(mapId) {
