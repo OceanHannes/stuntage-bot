@@ -1,6 +1,7 @@
 //https://github.com/The-Firexx/trackmania2020apidocumentation
 const backendService = require("./shared/backend.service.ts");
 const recordRepository = require("./record.repository.ts");
+const mapRepository = require("./map.repository.ts");
 
 const BASE_PATH_PROD_TRACKMANIA = 'https://prod.trackmania.core.nadeo.online';
 const BASE_PATH_LIVE_SERVICES = 'https://live-services.trackmania.nadeo.live';
@@ -57,8 +58,21 @@ async function loginTokenLevelTwo() {
     levelTwoRefreshToken = responseData.refreshToken;
 }
 
-async function getNewMapRecords() {
-    const mapId = "acB1NAOUIlOXxfyBplFdyhjgSY2"; // id of "STUNT clout"
+async function getNewRecords() {
+    //const mapId = "acB1NAOUIlOXxfyBplFdyhjgSY2"; // id of "STUNT clout"
+    let newRecords = [];
+
+    const mapIds = mapRepository.getMapIds();
+    for (const mapId of mapIds) {
+        const newOnMap = await getNewMapRecords(mapId);
+        newOnMap.forEach(n => {
+            newRecords.push(n);
+        });
+    }
+    console.log(newRecords);
+}
+
+async function getNewMapRecords(mapId) {
     const response = await backendService.get(`${BASE_PATH_LIVE_SERVICES}/api/token/leaderboard/group/Personal_Best/map/${mapId}/top`, {
         "Authorization": `nadeo_v1 t=${levelTwoToken}`
     });
@@ -85,8 +99,7 @@ async function getNewMapRecords() {
         });
     });
 
-    const newRecords = await recordRepository.updateAndReturnNewWorldRecords(recordEntities);
-    console.log(newRecords);
+    return recordRepository.updateAndReturnNewWorldRecords(recordEntities);
 }
 
 async function getMapName(mapId) {
@@ -113,5 +126,5 @@ function removeStylingFromStunt(name) {
 
 module.exports = {
     login,
-    getNewMapRecords
+    getNewRecords
 };

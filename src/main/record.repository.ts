@@ -4,7 +4,7 @@ const BASE_PATH = './src/resources/db';
 
 
 
-async function updateAndReturnNewWorldRecords(newRecords) {
+function updateAndReturnNewWorldRecords(newRecords) {
     const data = fs.readFileSync(`${BASE_PATH}/records.csv`, "utf-8");
     const savedRecords = readDataToRecords(data);
     saveRecords(newRecords);
@@ -30,7 +30,7 @@ function readDataToRecords(data) {
 }
 
 function saveRecords(records) {
-    fs.writeFileSync(`${BASE_PATH}/test.csv`, recordsToString(records));
+    fs.writeFileSync(`${BASE_PATH}/records.csv`, recordsToString(records));
 }
 
 function recordsToString(records) {
