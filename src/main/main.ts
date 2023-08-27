@@ -24,7 +24,7 @@ client.on("message", (message) => {
 
 function loop() {
     setTimeout(loop,10*1000); // 10s
-    nadeoService.getMapRecords();
+    nadeoService.getNewMapRecords();
 }
 
 //##################################################
