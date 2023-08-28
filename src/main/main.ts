@@ -1,7 +1,7 @@
 // long term: a switch to Java will be made: https://github.com/discord-jda/JDA
 const CONFIG = require("../../config.ts");
 const Discord = require("discord.js");
-const { keepAlive } = require("./server.ts");
+const keepAlive = require("./server.ts");
 
 const nadeoService = require("./nadeo.service.ts");
 const discordService = require("./discord.service.ts");
@@ -24,7 +24,7 @@ client.on("message", (message) => {
 //##################################################
 
 function loop() {
-    setTimeout(loop,10*1000); // 10s
+    setTimeout(loop,5*60*1000); // 5min
     nadeoService.getNewRecords()
         .then(records => {
             if (records.length > 0) {

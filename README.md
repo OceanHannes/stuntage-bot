@@ -5,5 +5,10 @@ This bot observes world records driven on the official
 **Stuntage** maps and notifies the [Discord-Server](https://discord.gg/GTMzH5ZnxT).
 
 ## Setup
-Create .csv files:  
-**./src/resources/db/records.csv**
+
+### Add:
+**Secrets** or **.env**
+
+### Create:  
+**./src/resources/db/records.csv**  
+**./src/resources/db/maps.csv**  

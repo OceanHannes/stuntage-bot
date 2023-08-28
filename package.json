@@ -8,8 +8,7 @@
     }
   ],
   "scripts": {
-    "dev": "set NODE_ENV=development&& node src/main/main.ts",
-    "prod": "set NODE_ENV=production&& node src/main/main.ts"
+    "start": "node src/main/main.ts"
   },
   "private": true,
   "dependencies": {
