@@ -8,6 +8,8 @@ const discordService = require("./discord.service.ts");
 
 const client = new Discord.Client();
 
+let cycleNumber = 0;
+
 //##################################################
 
 client.once("ready", () => {
@@ -24,6 +26,8 @@ client.on("message", (message) => {
 //##################################################
 
 function loop() {
+    cycleNumber++;
+    console.log(`CycleNumber: ${cycleNumber}`);
     setTimeout(loop,5*60*1000); // 5min
     nadeoService.getNewRecords()
         .then(records => {

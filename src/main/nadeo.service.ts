@@ -19,14 +19,19 @@ async function login(email, password) {
     await loginTokenLevelOne();
     await loginTokenLevelTwo();
     console.log("Fully authorized to nadeo services!");
-    setTimeout(rerfeshTokens, 12*60*60*1000); // 12h
+    setTimeout(refreshTokens, 30*60*1000); // 30min
 }
 
-async function rerfeshTokens() {
-    await refreshTokenLevelOne();
-    await refreshTokenLevelTwo();
-    console.log("Fully re-authorized to nadeo services!");
-    setTimeout(rerfeshTokens, 12*60*60*1000); // 12h
+async function refreshTokens() {
+    try {
+        await refreshTokenLevelOne();
+        await refreshTokenLevelTwo();
+        console.log("Fully re-authorized to nadeo services!");
+        setTimeout(refreshTokens, 30*60*1000); // 30min
+    } catch (e) {
+        console.log("Exception whilst refreshing Tokens! Trying again in 1 minute.");
+        setTimeout(refreshTokens, 1000); // 1min
+    }
 }
 
 
@@ -40,6 +45,8 @@ async function loginTokenLevelZero(email, password) {
         "Content-Type": "application/json",
         "User-Agent": "PostmanRuntime/7.28.4",  // basically just a random value: I took this one from the documentation
     });
+    if (!response.ok) { throw new Error('Exception on "loginTokenLevelZero"'); }
+
     const responseData = await response.json();
     levelZeroToken = responseData.ticket;
 }
@@ -49,6 +56,8 @@ async function loginTokenLevelOne() {
         "Authorization": `ubi_v1 t=${levelZeroToken}`,
         "Content-Type": "application/json",
     });
+    if (!response.ok) { throw new Error('Exception on "loginTokenLevelOne"'); }
+
     const responseData = await response.json();
     levelOneToken = responseData.accessToken;
     levelOneRefreshToken = responseData.refreshToken;
@@ -61,6 +70,8 @@ async function loginTokenLevelTwo() {
         }, {
         "audience": "NadeoLiveServices",
     });
+    if (!response.ok) { throw new Error('Exception on "loginTokenLevelTwo"'); }
+
     const responseData = await response.json();
     levelTwoToken = responseData.accessToken;
     levelTwoRefreshToken = responseData.refreshToken;
@@ -71,6 +82,8 @@ async function refreshTokenLevelOne() {
         "Authorization": `nadeo_v1 t=${levelOneRefreshToken}`,
         "Content-Type": "application/json",
     });
+    if (!response.ok) { throw new Error('Exception on "refreshTokenLevelOne"'); }
+
     const responseData = await response.json();
     levelOneToken = responseData.accessToken;
     levelOneRefreshToken = responseData.refreshToken;
@@ -81,29 +94,37 @@ async function refreshTokenLevelTwo() {
         "Authorization": `nadeo_v1 t=${levelTwoRefreshToken}`,
         "Content-Type": "application/json",
     });
+    if (!response.ok) { throw new Error('Exception on "refreshTokenLevelTwo"'); }
+
     const responseData = await response.json();
     levelTwoToken = responseData.accessToken;
     levelTwoRefreshToken = responseData.refreshToken;
 }
 
 async function getNewRecords() {
-    const mapIds = mapRepository.getMapIds();
+    try {
+        const mapIds = mapRepository.getMapIds();
 
-    let newRecords = [];
-    for (const mapId of mapIds) {
-        const newOnMap = await getNewMapRecords(mapId);
-        newOnMap.forEach(n => {
-            newRecords.push(n);
-        });
+        let newRecords = [];
+        for (const mapId of mapIds) {
+            const newOnMap = await getNewMapRecords(mapId);
+            newOnMap.forEach(n => {
+                newRecords.push(n);
+            });
+        }
+
+        return newRecords;
+    } catch (e) {
+        console.log("Exception whilst trying to get new Records! Skipping this cycle.");
+        return [];
     }
-
-    return newRecords;
 }
 
 async function getNewMapRecords(mapId) {
     const response = await backendService.get(`${BASE_PATH_LIVE_SERVICES}/api/token/leaderboard/group/Personal_Best/map/${mapId}/top`, {
         "Authorization": `nadeo_v1 t=${levelTwoToken}`
     });
+
     const responseData = await response.json();
     const worldRecordsOfMap = responseData.tops.filter(y => y.zoneName === 'World')[0].top;
 
@@ -134,6 +155,7 @@ async function getMapName(mapId) {
     const response = await backendService.get(`${BASE_PATH_PROD_TRACKMANIA}/maps?mapUidList=${mapId}`, {
         "Authorization": `nadeo_v1 t=${levelOneToken}`
     });
+
     const responseData = await response.json();
     return removeStylingFromStunt(responseData[0].name);
 }
@@ -142,6 +164,7 @@ async function getPlayerNames(ids) {
     const response = await backendService.get(`${BASE_PATH_PROD_TRACKMANIA}/accounts/displayNames/?accountIdList=${ids}`, {
         "Authorization": `nadeo_v1 t=${levelOneToken}`
     });
+
     return await response.json();
 }
 
