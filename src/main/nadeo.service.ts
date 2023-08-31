@@ -105,15 +105,15 @@ async function getNewRecords() {
     try {
         const mapIds = mapRepository.getMapIds();
 
-        let newRecords = [];
+        let recordEntities = [];
         for (const mapId of mapIds) {
-            const newOnMap = await getNewMapRecords(mapId);
-            newOnMap.forEach(n => {
-                newRecords.push(n);
+            const newRecordEntities = await getNewMapRecords(mapId);
+            newRecordEntities.forEach(n => {
+                recordEntities.push(n);
             });
         }
 
-        return newRecords;
+        return recordRepository.updateAndReturnNewWorldRecords(recordEntities);
     } catch (e) {
         console.log("Exception whilst trying to get new Records! Skipping this cycle.");
         return [];
@@ -148,7 +148,7 @@ async function getNewMapRecords(mapId) {
         });
     });
 
-    return recordRepository.updateAndReturnNewWorldRecords(recordEntities);
+    return recordEntities;
 }
 
 async function getMapName(mapId) {

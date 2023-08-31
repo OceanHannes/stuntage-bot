@@ -31,6 +31,7 @@ function loop() {
     setTimeout(loop,5*60*1000); // 5min
     nadeoService.getNewRecords()
         .then(records => {
+            console.log(`finished CycleNumber: ${cycleNumber}`);
             if (records.length > 0) {
                 discordService.sendNewRecords(client, CONFIG.DISCORD_SERVER, CONFIG.DISCORD_CHANNEL, records);
             }
