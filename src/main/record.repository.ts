@@ -13,9 +13,10 @@ function updateAndReturnNewWorldRecords(newRecords) {
 }
 
 function readDataToRecords(data) {
-    const lines = data.trim().split("\r\n");
+    const lines = data.trim().split("\n");
 
     return lines.reduce((group, line) => {
+        line = line.replace("\r", "");
         const tokens = line.split(";");
         group.push({
             accountId: tokens[0],
@@ -35,7 +36,7 @@ function saveRecords(records) {
 
 function recordsToString(records) {
     return records.reduce((group, record) => {
-        return group + `${record.accountId};${record.displayName};${record.mapId};${record.mapName};${record.position};${record.score}\r\n`;
+        return group + `${record.accountId};${record.displayName};${record.mapId};${record.mapName};${record.position};${record.score}\n`;
     }, "");
 }
 

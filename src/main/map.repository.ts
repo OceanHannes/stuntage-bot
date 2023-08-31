@@ -12,9 +12,10 @@ function getMapIds() {
 }
 
 function readDataToMaps(data) {
-    const lines = data.trim().split("\r\n");
+    let lines = data.trim().split("\n");
 
     return lines.reduce((group, line) => {
+        line = line.replace("\r", "");
         const tokens = line.split(";");
         group.push({
             mapName: tokens[0],
