@@ -28,7 +28,7 @@ client.on("message", (message) => {
 function loop() {
     cycleNumber++;
     console.log(`CycleNumber: ${cycleNumber}`);
-    setTimeout(loop,5*60*1000); // 5min
+    setTimeout(loop, 30*60*1000); // 30min
     nadeoService.getNewRecords()
         .then(records => {
             console.log(`finished CycleNumber: ${cycleNumber}`);

@@ -170,7 +170,27 @@ async function getPlayerNames(ids) {
 
 function removeStylingFromStunt(name) {
     //https://wiki.trackmania.io/en/content-creation/text-styling
-    return name.replace("$w$s$0FCS$0FDT$0FEUN$0FFT$Z", "STUNT");
+    name = name.replaceAll("$O", "");
+    name = name.replaceAll("$o", "");
+    name = name.replaceAll("$I", "");
+    name = name.replaceAll("$i", "");
+    name = name.replaceAll("$W", "");
+    name = name.replaceAll("$w", "");
+    name = name.replaceAll("$N", "");
+    name = name.replaceAll("$n", "");
+    name = name.replaceAll("$T", "");
+    name = name.replaceAll("$t", "");
+    name = name.replaceAll("$S", "");
+    name = name.replaceAll("$s", "");
+    name = name.replaceAll("$G", "");
+    name = name.replaceAll("$g", "");
+    name = name.replaceAll("$Z", "");
+    name = name.replaceAll("$z", "");
+    name = name.replaceAll("$0FCS", "S");
+    name = name.replaceAll("$0FDT", "T");
+    name = name.replaceAll("$0FEUN", "UN");
+    name = name.replaceAll("$0FFT", "T");
+    return name;
 }
 
 
