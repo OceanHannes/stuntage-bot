@@ -31,7 +31,7 @@ function sendNewRecords(records) {
                     { name: 'New WR Time', value: `${scoreToTime(record.newWrHolder.score)}s`, inline: true },
                     { name: '\u200B', value: '\u200B', inline: true },
                     { name: 'Diff', value: `-${scoreToTime(record.oldWrHolder.score - record.newWrHolder.score)}s`, inline: true },
-                    { name: 'Date', value: record.newWrHolder.date, inline: true },
+                    { name: 'Date', value: timestampToUnix(record.newWrHolder.date), inline: true },
                     { name: '\u200B', value: '\u200B', inline: true },
                     { name: 'Old WR-holder', value: record.oldWrHolder.playerName, inline: true },
                     { name: '\u200B', value: '\u200B' },
@@ -59,6 +59,10 @@ function scoreToTime(score) {
     const min_string = ('00' + min).slice(-2);
 
     return min_string + ':' + sec_string + '.' + ms_string;
+}
+
+function timestampToUnix(timestamp) {
+    return `<t:${Date.parse(timestamp)/1000}:f>`;
 }
 
 
