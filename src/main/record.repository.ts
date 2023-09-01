@@ -19,12 +19,18 @@ function readDataToRecords(data) {
         line = line.replace("\r", "");
         const tokens = line.split(";");
         group.push({
-            accountId: tokens[0],
-            displayName: tokens[1],
-            mapId: tokens[2],
-            mapName: tokens[3],
-            position: tokens[4],
-            score: tokens[5],
+            player: {
+                accountId: tokens[1],
+                playerName: tokens[2],
+                position: tokens[3],
+                score: tokens[0],
+                date: tokens[4],
+            },
+            map: {
+                mapId: tokens[5],
+                mapName: tokens[6],
+                mapIcon: tokens[7],
+            }
         });
         return group;
     }, []);
@@ -36,7 +42,7 @@ function saveRecords(records) {
 
 function recordsToString(records) {
     return records.reduce((group, record) => {
-        return group + `${record.accountId};${record.displayName};${record.mapId};${record.mapName};${record.position};${record.score}\n`;
+        return group + `${record.player.score};${record.player.accountId};${record.player.playerName};${record.player.position};${record.player.date};${record.map.mapId};${record.map.mapName};${record.map.mapIcon}\n`;
     }, "");
 }
 
@@ -44,19 +50,38 @@ function getChangedWorldRecords(oldRecordList, newRecordList) {
     let newRecords = [];
     newRecordList.forEach(n => {
         const entryOnInteresting = oldRecordList.filter(o => (
-            n.mapId == o.mapId &&
-            o.position == 1 &&
-            n.position == 1
+            n.map.mapId == o.map.mapId &&
+            o.player.position == 1 &&
+            n.player.position == 1
         ));
 
         if (entryOnInteresting.length > 0) {
             const entryOnExisting = entryOnInteresting.filter(o => (
-                n.accountId == o.accountId &&
-                n.score == o.score
+                n.player.accountId == o.player.accountId &&
+                n.player.score == o.player.score
             ));
 
             if (entryOnExisting.length === 0) {
-                newRecords.push(n);
+                const o = entryOnInteresting[0];
+                newRecords.push({
+                    newWrHolder: {
+                        accountId: n.player.accountId,
+                        playerName: n.player.playerName,
+                        score: n.player.score,
+                        position: n.player.position,
+                        date: n.player.date,
+                    },
+                    oldWrHolder: {
+                        accountId: o.player.accountId,
+                        playerName: o.player.playerName,
+                        score: o.player.score,
+                    },
+                    map: {
+                        mapId: n.map.mapId,
+                        mapName: n.map.mapName,
+                        mapIcon: n.map.mapIcon,
+                    },
+                });
             }
         }
     });

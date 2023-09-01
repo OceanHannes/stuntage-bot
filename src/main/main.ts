@@ -6,7 +6,17 @@ const keepAlive = require("./server.ts");
 const nadeoService = require("./nadeo.service.ts");
 const discordService = require("./discord.service.ts");
 
-const client = new Discord.Client();
+const client = new Discord.Client({
+    intents: [
+        Discord.IntentsBitField.Flags.Guilds,
+        Discord.IntentsBitField.Flags.GuildMembers,
+        Discord.IntentsBitField.Flags.GuildModeration, //bans etc
+        Discord.IntentsBitField.Flags.GuildPresences,  //idk
+        Discord.IntentsBitField.Flags.GuildMessages,
+        Discord.IntentsBitField.Flags.GuildMessageReactions,
+        Discord.IntentsBitField.Flags.MessageContent,
+    ]
+});
 
 let cycleNumber = 0;
 
@@ -14,8 +24,11 @@ let cycleNumber = 0;
 
 client.once("ready", () => {
     console.log(`Bot is online as "${client.user.tag}"!`);
-    nadeoService.login(CONFIG.NADEO_EMAIL, CONFIG.NADEO_PW)
-        .then(loop);
+    discordService.setup(Discord, client, CONFIG.DISCORD_SERVER, CONFIG.DISCORD_CHANNEL)
+        .then(() => {
+            nadeoService.login(CONFIG.NADEO_EMAIL, CONFIG.NADEO_PW)
+                .then(loop);
+    });
 });
 
 //##################################################
@@ -33,7 +46,7 @@ function loop() {
         .then(records => {
             console.log(`finished CycleNumber: ${cycleNumber}`);
             if (records.length > 0) {
-                discordService.sendNewRecords(client, CONFIG.DISCORD_SERVER, CONFIG.DISCORD_CHANNEL, records);
+                discordService.sendNewRecords(records);
             }
         });
 }

@@ -128,7 +128,7 @@ async function getNewMapRecords(mapId) {
     const responseData = await response.json();
     const worldRecordsOfMap = responseData.tops.filter(y => y.zoneName === 'World')[0].top;
 
-    const mapName = await getMapName(mapId);
+    const mapInfo = await getMapInfo(mapId);
 
     let playerRecords = [];
     worldRecordsOfMap.forEach(player => {
@@ -137,35 +137,52 @@ async function getNewMapRecords(mapId) {
     const playerData = await getPlayerNames(playerRecords);
 
     let recordEntities = [];
-    worldRecordsOfMap.forEach(record => {
+
+    for (const record of worldRecordsOfMap) {
+        const date = await getRecordDate(record.accountId, mapInfo.mapId);
         recordEntities.push({
-            accountId: record.accountId,
-            displayName: playerData.filter(p => p.accountId === record.accountId)[0].displayName,
-            mapId: mapId,
-            mapName: mapName,
-            position: record.position,
-            score: record.score,
+            player: {
+                accountId: record.accountId,
+                playerName: playerData.filter(p => p.accountId === record.accountId)[0].displayName,
+                position: record.position,
+                score: record.score,
+                date,
+            },
+            map: {
+                mapId,
+                mapName: removeStylingFromStunt(mapInfo.name),
+                mapIcon: mapInfo.thumbnailUrl,
+            }
         });
-    });
+    }
 
     return recordEntities;
 }
 
-async function getMapName(mapId) {
+async function getMapInfo(mapId) {
     const response = await backendService.get(`${BASE_PATH_PROD_TRACKMANIA}/maps?mapUidList=${mapId}`, {
         "Authorization": `nadeo_v1 t=${levelOneToken}`
     });
 
     const responseData = await response.json();
-    return removeStylingFromStunt(responseData[0].name);
+    return responseData[0];
 }
 
 async function getPlayerNames(ids) {
-    const response = await backendService.get(`${BASE_PATH_PROD_TRACKMANIA}/accounts/displayNames/?accountIdList=${ids}`, {
+    const response = await backendService.get(`${BASE_PATH_PROD_TRACKMANIA}/accounts/displayNames?accountIdList=${ids}`, {
         "Authorization": `nadeo_v1 t=${levelOneToken}`
     });
 
     return await response.json();
+}
+
+async function getRecordDate(accountId, mapUuid) {
+    const response = await backendService.get(`${BASE_PATH_PROD_TRACKMANIA}/mapRecords?accountIdList=${accountId}&mapIdList=${mapUuid}`, {
+        "Authorization": `nadeo_v1 t=${levelOneToken}`
+    });
+
+    const responseData = await response.json();
+    return responseData[0].timestamp;
 }
 
 function removeStylingFromStunt(name) {
