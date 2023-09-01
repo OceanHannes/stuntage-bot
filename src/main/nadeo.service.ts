@@ -105,10 +105,17 @@ async function getNewRecords() {
     try {
         const mapIds = mapRepository.getMapIds();
 
-        let recordEntities = [];
+        let promises = [];
         for (const mapId of mapIds) {
-            const newRecordEntities = await getNewMapRecords(mapId);
-            newRecordEntities.forEach(n => {
+            const promise = getNewMapRecords(mapId);
+            promises.push(promise);
+        }
+
+        const newRecordEntitiesByMap = await Promise.all(promises);
+
+        let recordEntities = [];
+        for (const recordEntity of newRecordEntitiesByMap) {
+            recordEntity.forEach(n => {
                 recordEntities.push(n);
             });
         }
