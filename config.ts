@@ -11,4 +11,6 @@ module.exports = {
     NADEO_PW: process.env.NADEO_PW,
     DISCORD_SERVER: process.env.DISCORD_SERVER,
     DISCORD_CHANNEL: process.env.DISCORD_CHANNEL,
+    CLIENT_ID: process.env.CLIENT_ID,
+    CLIENT_SECRET: process.env.CLIENT_SECRET,
 }

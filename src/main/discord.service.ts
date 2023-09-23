@@ -33,7 +33,7 @@ function sendNewRecords(records) {
                     { name: 'Diff', value: `-${scoreToTime(record.oldWrHolder.score - record.newWrHolder.score)}s`, inline: true },
                     { name: 'Date', value: timestampToUnix(record.newWrHolder.date), inline: true },
                     { name: '\u200B', value: '\u200B', inline: true },
-                    { name: 'Old WR-holder', value: record.oldWrHolder.playerName, inline: true },
+                    { name: 'Previous WR-holder', value: record.oldWrHolder.playerName, inline: true },
                     { name: '\u200B', value: '\u200B' },
                 )
                 .setFooter({ text: 'Bot by OceanHannes', iconURL: oceanhannes.avatarURL() });

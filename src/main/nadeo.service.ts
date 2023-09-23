@@ -5,6 +5,7 @@ const mapRepository = require("./map.repository.ts");
 
 const BASE_PATH_PROD_TRACKMANIA = 'https://prod.trackmania.core.nadeo.online';
 const BASE_PATH_LIVE_SERVICES = 'https://live-services.trackmania.nadeo.live';
+const BASE_PATH_API_TRACKMANIA = 'https://api.trackmania.com';
 
 let levelZeroToken = null;
 let levelOneToken = null;
@@ -12,12 +13,21 @@ let levelOneRefreshToken = null;
 let levelTwoToken = null;
 let levelTwoRefreshToken = null;
 
+let apiTrackmaniaClientId = null
+let apiTrackmaniaClientSecret = null
+let apiTrackmaniaToken = null;
 
 
-async function login(email, password) {
-    await loginTokenLevelZero(email, password);
+
+async function login(CONFIG) {
+    await loginTokenLevelZero(CONFIG.NADEO_EMAIL, CONFIG.NADEO_PW);
     await loginTokenLevelOne();
     await loginTokenLevelTwo();
+
+    apiTrackmaniaClientId = CONFIG.CLIENT_ID;
+    apiTrackmaniaClientSecret = CONFIG.CLIENT_SECRET;
+    await loginApiTrackmania();
+
     console.log("Fully authorized to nadeo services!");
     setTimeout(refreshTokens, 30*60*1000); // 30min
 }
@@ -26,10 +36,13 @@ async function refreshTokens() {
     try {
         await refreshTokenLevelOne();
         await refreshTokenLevelTwo();
+
+        await loginApiTrackmania();
+
         console.log("Fully re-authorized to nadeo services!");
         setTimeout(refreshTokens, 30*60*1000); // 30min
     } catch (e) {
-        console.log("Exception whilst refreshing Tokens! Trying again in 1 minute.");
+        console.log("Exception whilst refreshing Tokens! Trying again in 1 minute. Exception: " + e);
         setTimeout(refreshTokens, 1000); // 1min
     }
 }
@@ -77,6 +90,20 @@ async function loginTokenLevelTwo() {
     levelTwoRefreshToken = responseData.refreshToken;
 }
 
+async function loginApiTrackmania() {
+    const response = await backendService.post(`${BASE_PATH_API_TRACKMANIA}/api/access_token`, {
+        "Content-Type": "application/json",
+        }, {
+        "grant_type": "client_credentials",
+        "client_id": apiTrackmaniaClientId,
+        "client_secret": apiTrackmaniaClientSecret
+    });
+    if (!response.ok) { throw new Error('Exception on "loginApiTrackmania"'); }
+
+    const responseData = await response.json();
+    apiTrackmaniaToken = responseData.access_token;
+}
+
 async function refreshTokenLevelOne() {
     const response = await backendService.post(`${BASE_PATH_PROD_TRACKMANIA}/v2/authentication/token/refresh`, {
         "Authorization": `nadeo_v1 t=${levelOneRefreshToken}`,
@@ -122,7 +149,7 @@ async function getNewRecords() {
 
         return recordRepository.updateAndReturnNewWorldRecords(recordEntities);
     } catch (e) {
-        console.log("Exception whilst trying to get new Records! Skipping this cycle.");
+        console.log("Exception whilst trying to get new Records! Skipping this cycle. Exception: " + e);
         return [];
     }
 }
@@ -150,7 +177,7 @@ async function getNewMapRecords(mapId) {
         recordEntities.push({
             player: {
                 accountId: record.accountId,
-                playerName: playerData.filter(p => p.accountId === record.accountId)[0].displayName,
+                playerName: playerData[record.accountId],
                 position: record.position,
                 score: record.score,
                 date,
@@ -176,11 +203,19 @@ async function getMapInfo(mapId) {
 }
 
 async function getPlayerNames(ids) {
-    const response = await backendService.get(`${BASE_PATH_PROD_TRACKMANIA}/accounts/displayNames?accountIdList=${ids}`, {
-        "Authorization": `nadeo_v1 t=${levelOneToken}`
+    const response = await backendService.get(`${BASE_PATH_API_TRACKMANIA}/api/display-names?${playerIdsToUrlParameters(ids)}`, {
+        "Authorization": `Bearer ${apiTrackmaniaToken}`
     });
 
     return await response.json();
+}
+
+function playerIdsToUrlParameters(ids) {
+    let urlParameters = "";
+    for (const id of ids) {
+        urlParameters = urlParameters + "accountId[]=" + id + "&";
+    }
+    return urlParameters;
 }
 
 async function getRecordDate(accountId, mapUuid) {

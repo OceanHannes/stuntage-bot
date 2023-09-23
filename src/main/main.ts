@@ -26,7 +26,7 @@ client.once("ready", () => {
     console.log(`Bot is online as "${client.user.tag}"!`);
     discordService.setup(Discord, client, CONFIG.DISCORD_SERVER, CONFIG.DISCORD_CHANNEL)
         .then(() => {
-            nadeoService.login(CONFIG.NADEO_EMAIL, CONFIG.NADEO_PW)
+            nadeoService.login(CONFIG)
                 .then(loop);
     });
 });
